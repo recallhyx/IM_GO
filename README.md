@@ -1,6 +1,6 @@
 # IM_GO
 IM 聊天项目 后端实现
-*所有文件夹为同一个项目
+* 所有文件夹为同一个项目
 * 文件夹说明：
 * database - sql 的包
 * example - protobuf 的例子 （.proto和编译出来的go文件）
