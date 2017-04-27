@@ -61,8 +61,27 @@ func main() {
 		if err != nil {
 			continue
 		}
+		conn.Write(ProtoBufMsg())
 		go handleClient(conn)
 	}
+}
+
+func ProtoBufMsg() []byte {
+	p := &pb.Person{
+		Id:    1234,
+		Name:  "Jerry Hou",
+		Email: "https@yryz.net",
+		Phones: []*pb.Person_PhoneNumber{
+			{Number: "110", Type: pb.Person_HOME},
+			{Number: "911", Type: pb.Person_WORK},
+		},
+	}
+	// 编码
+	out, err := proto.Marshal(p)
+	if err != nil {
+		log.Fatal("failed to marshal: ", err)
+	}
+	return out
 }
 
 //处理每一个客户端
