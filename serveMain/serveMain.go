@@ -2,8 +2,12 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"net"
 	"os"
+
+	pb "../example"
+	"github.com/gogo/protobuf/proto"
 	//"strconv"
 	//"strings"
 	"time"
@@ -33,11 +37,12 @@ func clnMgr() {
 
 	}
 }
+
 func main() {
 	//初始化数据库
 	database.SetupDB()
 
-	service := ":1200"
+	service := "192.168.191.1:6666"
 	//以ipv4处理
 	tcpAddr, err := net.ResolveTCPAddr("tcp4", service)
 	checkError(err)
@@ -52,6 +57,7 @@ func main() {
 	for {
 		//接受客户端连接请求
 		conn, err := listener.Accept()
+		fmt.Println("accept")
 		if err != nil {
 			continue
 		}
@@ -65,13 +71,21 @@ func handleClient(conn net.Conn) {
 	request := make([]byte, 128)                          // set maxium request length to 128B to prevent flood attack
 	defer conn.Close()                                    // close connection before exit
 	for {
-		read_len, err := conn.Read(request)
+		readlen, err := conn.Read(request)
 		if err != nil {
 			clnOffLineChannel <- conn
 			//fmt.Println(err)
 			break
 		}
-		fmt.Println(string(request[:read_len]))
+		//原来的输入接受
+		//fmt.Println(string(request[:read_len]))
+		// 解码
+		p2 := &pb.Person{}
+		if err := proto.Unmarshal(request[:readlen], p2); err != nil {
+			log.Fatal("failed to unmarshal: ", err)
+		}
+		fmt.Println(p2)
+
 		if read_len == 0 {
 			clnOffLineChannel <- conn
 			break
