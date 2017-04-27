@@ -86,7 +86,7 @@ func handleClient(conn net.Conn) {
 		}
 		fmt.Println(p2)
 
-		if read_len == 0 {
+		if readlen == 0 {
 			clnOffLineChannel <- conn
 			break
 		}
