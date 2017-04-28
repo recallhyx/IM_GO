@@ -4,11 +4,25 @@ import (
 	"fmt"
 	"log"
 
+	"../Handle"
 	pb "../example/protoc"
 	"github.com/gogo/protobuf/proto"
 )
 
-//编码
+const (
+	// 登录
+	Login int32 = 0
+	// 注册
+	Register int32 = 1
+	// 添加好友
+	AddFriend int32 = 2
+	// 删除好友
+	DelFriend int32 = 3
+	//发送信息
+	SendMsg int32 = 4
+)
+
+//编码 内部
 func encodeProtoc() []byte {
 	p := &pb.Frame{
 		ProtoSign:  1234,
@@ -28,13 +42,36 @@ func encodeProtoc() []byte {
 	return out
 }
 
-//解码
+//解码 内部
 func deCodeProtoc(request []byte, readlen int) (*pb.Frame, error) {
-	p2 := &pb.Frame{}
-	err := proto.Unmarshal(request[:readlen], p2)
+	frame := &pb.Frame{}
+	err := proto.Unmarshal(request[:readlen], frame)
 	if err != nil {
 		log.Fatal("failed to unmarshal: ", err)
 	}
-	fmt.Println(p2)
-	return p2, err
+	fmt.Println(frame)
+	return frame, err
+}
+
+//消息分发
+func MsgMux(frame *pb.Frame) {
+	switch msgType := frame.MsgType; msgType {
+	case Login:
+		Handle.HandleLogin(frame.Src)
+	default:
+	}
+}
+
+//Decode 解码 外部接口
+func Decode(request []byte, readlen int) (*pb.Frame, error) {
+	//解码得到信息帧
+	frame := &pb.Frame{}
+	err := proto.Unmarshal(request[:readlen], frame)
+	if err != nil {
+		log.Fatal("failed to unmarshal: ", err)
+	}
+	fmt.Println(frame)
+	//分发消息
+	go MsgMux(frame)
+	return frame, err
 }

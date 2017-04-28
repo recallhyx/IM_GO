@@ -2,16 +2,13 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"net"
 	"os"
 
-	pb "../example"
-	"github.com/gogo/protobuf/proto"
 	//"strconv"
 	//"strings"
 	"time"
-
+	//"../Model"
 	"../database"
 )
 
@@ -61,27 +58,9 @@ func main() {
 		if err != nil {
 			continue
 		}
-		conn.Write(ProtoBufMsg())
+		//conn.Write(encodeProtoc())
 		go handleClient(conn)
 	}
-}
-
-func ProtoBufMsg() []byte {
-	p := &pb.Person{
-		Id:    1234,
-		Name:  "Jerry Hou",
-		Email: "https@yryz.net",
-		Phones: []*pb.Person_PhoneNumber{
-			{Number: "110", Type: pb.Person_HOME},
-			{Number: "911", Type: pb.Person_WORK},
-		},
-	}
-	// 编码
-	out, err := proto.Marshal(p)
-	if err != nil {
-		log.Fatal("failed to marshal: ", err)
-	}
-	return out
 }
 
 //处理每一个客户端
@@ -99,11 +78,7 @@ func handleClient(conn net.Conn) {
 		//原来的输入接受
 		//fmt.Println(string(request[:read_len]))
 		// 解码
-		p2 := &pb.Person{}
-		if err := proto.Unmarshal(request[:readlen], p2); err != nil {
-			log.Fatal("failed to unmarshal: ", err)
-		}
-		fmt.Println(p2)
+		//deCodeProtoc(request, readlen)
 
 		if readlen == 0 {
 			clnOffLineChannel <- conn
