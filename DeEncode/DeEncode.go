@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"log"
 
+	"net"
+
 	"../Handle"
 	pb "../example/protoc"
 	"github.com/gogo/protobuf/proto"
@@ -62,30 +64,40 @@ func EncodeFeedBackProtoc(msgType int32, userName string,
 }
 
 //解码 内部
-func deCodeProtoc(request []byte, readlen int) (*pb.Frame, error) {
+func DeCodeProtoc(request []byte, readlen int) (*pb.Frame, error) {
 	frame := &pb.Frame{}
 	err := proto.Unmarshal(request[:readlen], frame)
 	return frame, err
 }
 
 //消息分发
-func msgMux(frame *pb.Frame) {
+func msgMux(frame *pb.Frame, conn net.Conn) {
 	switch msgType := frame.MsgType; msgType {
 	case Login:
-		Handle.HandleLogin(frame.Src)
+		if Handle.Login(frame.Src) {
+			log.Println("login..check.")
+			//发送返回帧
+			//编码
+			data, err := EncodeFeedBackProtoc(1, "lzy", 1, 1, "login ok")
+			if err != nil {
+				log.Println(err)
+				return
+			}
+			conn.Write(data)
+		}
 	default:
 	}
 }
 
 //对收到的消息进行解码并且分发
-func HandleMsg(request []byte, readlen int) (*pb.Frame, error) {
+func HandleMsg(request []byte, readlen int, clnConn net.Conn) (*pb.Frame, error) {
 	//解码得到信息帧
-	frame, err := deCodeProtoc(request, readlen)
+	frame, err := DeCodeProtoc(request, readlen)
 	if err != nil {
 		log.Fatal("failed to unmarshal: ", err)
 	}
 	fmt.Println(frame)
 	//分发消息
-	go msgMux(frame)
+	go msgMux(frame, clnConn)
 	return frame, err
 }

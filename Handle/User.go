@@ -1,25 +1,14 @@
 package Handle
 
 import (
-	"log"
-
 	"../database"
 	pb "../example/protoc"
 )
 
-//HandleLogin 登录,参数为pb.User
-func HandleLogin(user *pb.User) bool {
-	log.Println("login..check.")
+//Login 登录,参数为pb.User
+func Login(user *pb.User) bool {
 	//验证数据库里的情况
 	loginFlag := database.User_Login(user.UserName, user.UserPwd)
-	//发送返回帧
-	//编码
-	//data, err := EncodeFeedBackProtoc(1, "lzy", 1, 1, "login ok")
-	//if err != nil {
-	//	log.Println(err)
-	//	return false
-	//}
-
 	return loginFlag
 }
 

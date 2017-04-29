@@ -7,7 +7,6 @@ import (
 	"log"
 
 	"../database"
-	pb "../example/protoc"
 )
 
 func init() {
@@ -24,15 +23,15 @@ func Test_EncodingFbFrame(t *testing.T) {
 		t.Error(err)
 	}
 
-	//处理数据
-	frame, err := HandleMsg(data, len(data))
+	//解码数据
+	frame, err := DeCodeProtoc(data, len(data))
 	if err != nil {
 		t.Error(err)
 	}
 	log.Println(frame)
-
 }
 
+/*
 func Test_HandleMsg(t *testing.T) {
 	log.Println("test1")
 	//准备编码好的二进制数据
@@ -63,3 +62,4 @@ func Test_MsgMux(t *testing.T) {
 	msgMux(frame)
 
 }
+*/

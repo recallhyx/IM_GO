@@ -2,13 +2,15 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"net"
 	"os"
 
 	//"strconv"
 	//"strings"
 	"time"
-	//"../Model"
+
+	"../DeEncode"
 	"../database"
 )
 
@@ -19,7 +21,6 @@ func clnMgr() {
 	//通道初始化
 	clnOnLineChannel = make(chan net.Conn)
 	clnOffLineChannel = make(chan net.Conn)
-
 	for {
 		select {
 		//用户上线
@@ -77,7 +78,12 @@ func handleClient(conn net.Conn) {
 		}
 		//原来的输入接受
 		//fmt.Println(string(request[:read_len]))
-		// 解码
+		// 处理消息
+		_, err = DeEncode.HandleMsg(request[:readlen], readlen, conn)
+		if err != nil {
+			log.Println(err)
+			continue
+		}
 		//deCodeProtoc(request, readlen)
 
 		if readlen == 0 {

@@ -8,8 +8,7 @@ import (
 	"net"
 	"os"
 
-	pb "../example"
-	"github.com/gogo/protobuf/proto"
+	"../DeEncode"
 )
 
 func SendMsg(conn net.Conn) {
@@ -28,16 +27,24 @@ func SendMsg(conn net.Conn) {
 }
 func recv(conn net.Conn) {
 	returnBuf := make([]byte, 128)
-	_, err := conn.Read(returnBuf)
+	readlen, err := conn.Read(returnBuf)
+
 	if err != nil {
-		fmt.Println(err)
-		return
+		log.Fatalln(err)
+	}
+	//解码
+	frame, err := DeEncode.DeCodeProtoc(returnBuf, readlen)
+	if err != nil {
+		log.Fatalln(err)
 	}
 	fmt.Println("GET...")
 	fmt.Println(string(returnBuf))
+	fmt.Println(frame)
 }
+
+/*
 func ProtoBufMsg() []byte {
-	p := &pb.Person{
+	p := &pb.Frame{
 		Id:    1234,
 		Name:  "Jerry Hou",
 		Email: "https@yryz.net",
@@ -52,22 +59,27 @@ func ProtoBufMsg() []byte {
 		log.Fatal("failed to marshal: ", err)
 	}
 	return out
-}
+}*/
 
 func main() {
 
 	// connect to this socket
 	conn, _ := net.Dial("tcp4", "192.168.191.1:6666")
 	log.Println("connect....")
-	_, err := conn.Write(ProtoBufMsg())
+	loginData, err := DeEncode.EncodeLoginProtoc(DeEncode.Login, "lzy", "123")
 	if err != nil {
-		fmt.Println(err)
+		log.Fatalln(err)
+	}
+	_, err = conn.Write(loginData)
+	if err != nil {
+		log.Fatalln(err)
 		return
 	}
 	log.Println("Send ok....")
 	defer conn.Close()
 	for {
 
+		recv(conn)
 		//SendMsg(conn)
 		//	go recv(conn)
 		// listen for reply
