@@ -70,6 +70,7 @@ func main() {
 	if err != nil {
 		log.Fatalln(err)
 	}
+	//发送一条登录帧
 	_, err = conn.Write(loginData)
 	if err != nil {
 		log.Fatalln(err)

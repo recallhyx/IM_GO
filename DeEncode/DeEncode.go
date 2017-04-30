@@ -58,6 +58,7 @@ func EncodeFeedBackProtoc(msgType int32, userName string,
 			ActionType: actionCode,
 		},
 	}
+	log.Println(p)
 	// 编码
 	out, err := proto.Marshal(p)
 	return out, err
@@ -78,11 +79,13 @@ func msgMux(frame *pb.Frame, conn net.Conn) {
 			log.Println("login..check.")
 			//发送返回帧
 			//编码
-			data, err := EncodeFeedBackProtoc(1, "lzy", 1, 1, "login ok")
+			data, err := EncodeFeedBackProtoc(2, "lzy", 0, 0, "login ok")
 			if err != nil {
 				log.Println(err)
 				return
 			}
+			log.Println("Send...")
+			log.Println(data)
 			conn.Write(data)
 		}
 	default:
