@@ -76,10 +76,22 @@ func msgMux(frame *pb.Frame, conn net.Conn) {
 	switch msgType := frame.MsgType; msgType {
 	case Login:
 		if Handle.Login(frame.Src) {
-			log.Println("login..check.")
+			log.Println("login..check.ok")
 			//发送返回帧
 			//编码
 			data, err := EncodeFeedBackProtoc(2, "lzy", 0, 0, "login ok")
+			if err != nil {
+				log.Println(err)
+				return
+			}
+			log.Println("Send...")
+			log.Println(data)
+			conn.Write(data)
+		} else {
+			log.Println("login..check.failed")
+			//发送返回帧
+			//编码
+			data, err := EncodeFeedBackProtoc(2, "lzy", 1, 0, "login failed")
 			if err != nil {
 				log.Println(err)
 				return
