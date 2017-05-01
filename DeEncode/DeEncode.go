@@ -22,8 +22,8 @@ const (
 	AddFriend int32 = 2
 	// 删除好友
 	DelFriend int32 = 3
-	//发送信息
-	SendMsg int32 = 4
+	//聊天信息
+	ChatMsg int32 = 4
 )
 
 //编码登录帧
@@ -73,35 +73,48 @@ func DeCodeProtoc(request []byte, readlen int) (*pb.Frame, error) {
 	return frame, err
 }
 
+//处理登录帧
+func handleLogin(frame *pb.Frame, conn net.Conn) {
+	if Handle.Login(frame.Src) {
+		log.Println("login..check.ok")
+		//发送返回帧
+		//编码
+		data, err := EncodeFeedBackProtoc(2, "lzy", 0, 0, "login ok")
+		if err != nil {
+			log.Println(err)
+			return
+		}
+		log.Println("Send...")
+		log.Println(data)
+		conn.Write(data)
+	} else {
+		log.Println("login..check.failed")
+		//发送返回帧
+		//编码
+		data, err := EncodeFeedBackProtoc(2, "lzy", 1, 0, "login failed")
+		if err != nil {
+			log.Println(err)
+			return
+		}
+		log.Println("Send...")
+		log.Println(data)
+		conn.Write(data)
+	}
+}
+
+//处理聊天信息帧
+func handleChatMsg(frame *pb.Frame, conn net.Conn) {
+	log.Println(frame)
+}
+
 //消息分发
 func msgMux(frame *pb.Frame, conn net.Conn) {
 	switch msgType := frame.MsgType; msgType {
 	case Login:
-		if Handle.Login(frame.Src) {
-			log.Println("login..check.ok")
-			//发送返回帧
-			//编码
-			data, err := EncodeFeedBackProtoc(2, "lzy", 0, 0, "login ok")
-			if err != nil {
-				log.Println(err)
-				return
-			}
-			log.Println("Send...")
-			log.Println(data)
-			conn.Write(data)
-		} else {
-			log.Println("login..check.failed")
-			//发送返回帧
-			//编码
-			data, err := EncodeFeedBackProtoc(2, "lzy", 1, 0, "login failed")
-			if err != nil {
-				log.Println(err)
-				return
-			}
-			log.Println("Send...")
-			log.Println(data)
-			conn.Write(data)
-		}
+		handleLogin(frame, conn)
+		break
+	case ChatMsg:
+		handleChatMsg(frame, conn)
 	default:
 	}
 }
