@@ -6,8 +6,10 @@ import (
 
 	"net"
 
-	"../Handle"
-	pb "../example/protoc"
+	"IM_GO/Handle"
+
+	pb "IM_GO/example/protoc"
+
 	"github.com/gogo/protobuf/proto"
 )
 

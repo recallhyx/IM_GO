@@ -6,12 +6,12 @@ import (
 	"net"
 	"os"
 
-	//"strconv"
+	"strconv"
 	//"strings"
 	"time"
 
-	"../DeEncode"
-	"../database"
+	"IM_GO/DeEncode"
+	"IM_GO/database"
 )
 
 var clnOnLineChannel chan net.Conn
@@ -21,16 +21,28 @@ func clnMgr() {
 	//通道初始化
 	clnOnLineChannel = make(chan net.Conn)
 	clnOffLineChannel = make(chan net.Conn)
+	//存储在线用户
+	connList := make(map[string]net.Conn)
 	for {
 		select {
-		//用户上线
+		//用户下线处理统计
 		case clnConn := <-clnOffLineChannel:
 			{
-				fmt.Println(clnConn.RemoteAddr().String() + "exit")
+				//fmt.Println(clnConn.RemoteAddr().String() + "exit")
+				clnSap := clnConn.RemoteAddr().String()
+				fmt.Println(clnSap + " offline")
+				delete(connList, clnSap)
 				clnConn.Close()
-				break
+				showOnLines(connList)
 			}
-
+		//用户上线处理统计
+		case clnConn := <-clnOnLineChannel:
+			{
+				clnSap := clnConn.RemoteAddr().String()
+				fmt.Println(clnSap + " online")
+				connList[clnSap] = clnConn
+				showOnLines(connList)
+			}
 		}
 
 	}
@@ -40,7 +52,7 @@ func main() {
 	//初始化数据库
 	database.SetupDB()
 
-	service := "192.168.191.1:6666"
+	service := ":6666"
 	//以ipv4处理
 	tcpAddr, err := net.ResolveTCPAddr("tcp4", service)
 	checkError(err)
@@ -69,6 +81,8 @@ func handleClient(conn net.Conn) {
 	conn.SetReadDeadline(time.Now().Add(2 * time.Minute)) // set 2 minutes timeout
 	request := make([]byte, 128)                          // set maxium request length to 128B to prevent flood attack
 	defer conn.Close()                                    // close connection before exit
+	//若用户正常上线，则将此用户的conn传进用户上线通道
+	OnLineChannel <- conn
 	for {
 		readlen, err := conn.Read(request)
 		if err != nil {
@@ -92,6 +106,13 @@ func handleClient(conn net.Conn) {
 		}
 		request = make([]byte, 128) // clear last read content
 	}
+}
+
+//统计在线人数，将上线用户存入map里
+func showOnLines(arg_conns map[string]net.Conn) {
+
+	fmt.Println("Online Number: " + strconv.Itoa(len(arg_conns))) //strconv.Itoa将整数转换为十进制字符串形式
+
 }
 
 func checkError(err error) {
