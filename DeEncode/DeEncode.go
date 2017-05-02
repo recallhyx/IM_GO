@@ -11,7 +11,7 @@ import (
 
 	pb "../example/protoc"
 
-	"IM_GO/onLineUsers"
+	"../onLineUsers"
 
 	"github.com/gogo/protobuf/proto"
 )
@@ -128,6 +128,7 @@ func msgMux(frame *pb.Frame, conn net.Conn) {
 		break
 	case ChatMsg:
 		handleChatMsg(frame, conn)
+		break
 	default:
 	}
 }

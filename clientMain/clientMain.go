@@ -8,7 +8,7 @@ import (
 	"net"
 	"os"
 
-	"IM_GO/DeEncode"
+	"../DeEncode"
 )
 
 func SendMsg(conn net.Conn) {
