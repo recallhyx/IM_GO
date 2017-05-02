@@ -10,8 +10,8 @@ import (
 	//"strings"
 	"time"
 
-	"IM_GO/DeEncode"
-	"IM_GO/database"
+	"../DeEncode"
+	"../database"
 )
 
 var clnOnLineChannel chan net.Conn
@@ -82,7 +82,7 @@ func handleClient(conn net.Conn) {
 	request := make([]byte, 128)                          // set maxium request length to 128B to prevent flood attack
 	defer conn.Close()                                    // close connection before exit
 	//若用户正常上线，则将此用户的conn传进用户上线通道
-	OnLineChannel <- conn
+	clnOnLineChannel <- conn
 	for {
 		readlen, err := conn.Read(request)
 		if err != nil {
@@ -94,6 +94,7 @@ func handleClient(conn net.Conn) {
 		//fmt.Println(string(request[:read_len]))
 		// 处理消息
 		_, err = DeEncode.HandleMsg(request[:readlen], readlen, conn)
+
 		if err != nil {
 			log.Println(err)
 			continue
