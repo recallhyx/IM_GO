@@ -1,14 +1,15 @@
 package DeEncode
 
+//对接收的信息进行解码并处理
 import (
 	"fmt"
 	"log"
 
 	"net"
 
-	"IM_GO/Handle"
+	"../Handle"
 
-	pb "IM_GO/example/protoc"
+	pb "../example/protoc"
 
 	"IM_GO/onLineUsers"
 
@@ -16,6 +17,7 @@ import (
 )
 
 const (
+	//==========消息类型=============//
 	// 登录
 	Login int32 = 0
 	// 注册
@@ -26,6 +28,13 @@ const (
 	DelFriend int32 = 3
 	//聊天信息
 	ChatMsg int32 = 4
+
+	//==========登录返回值=============//
+
+	//登录成功
+	LoginSuccess int32 = 200
+	//登录失败
+	LoginFailed int32 = 201
 )
 
 //编码登录帧
@@ -77,12 +86,12 @@ func DeCodeProtoc(request []byte, readlen int) (*pb.Frame, error) {
 
 //处理登录帧
 func handleLogin(frame *pb.Frame, conn net.Conn) {
-	if Handle.Login(frame.Src) {
+	if Handle.Login(frame.Src) { // 登录成功
 		log.Println("login..check.ok")
 		onLineUsers.GetOnLineChan() <- conn
 		//发送返回帧
 		//编码
-		data, err := EncodeFeedBackProtoc(2, "lzy", 0, 0, "login ok")
+		data, err := EncodeFeedBackProtoc(2, "IM", LoginSuccess, Login, "login ok")
 		if err != nil {
 			log.Println(err)
 			return
@@ -95,7 +104,7 @@ func handleLogin(frame *pb.Frame, conn net.Conn) {
 		onLineUsers.GetOffLineChan() <- conn
 		//发送返回帧
 		//编码
-		data, err := EncodeFeedBackProtoc(2, "lzy", 1, 0, "login failed")
+		data, err := EncodeFeedBackProtoc(2, "IM", LoginFailed, Login, "login failed")
 		if err != nil {
 			log.Println(err)
 			return

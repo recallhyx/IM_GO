@@ -1,9 +1,9 @@
 package Handle
 
 import (
-	"IM_GO/database"
+	"../database"
 
-	pb "IM_GO/example/protoc"
+	pb "../example/protoc"
 )
 
 //Login 登录,参数为pb.User
