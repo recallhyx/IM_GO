@@ -15,15 +15,12 @@ import (
 	"../onLineUsers"
 )
 
-//此处的string到时候可以存放用户名，key存放的是ip
-var connList map[string]string
-
 func clnMgr() {
 	onLineUsers.InitNetChannel()
 	clnOffLineChannel := onLineUsers.GetOffLineChan()
 	clnOnLineChannel := onLineUsers.GetOnLineChan()
 	//存储在线用户
-	connList := make(map[string]net.Conn)
+	connList := onLineUsers.GetConnList()
 	for {
 		select {
 		//用户下线处理统计
@@ -34,7 +31,7 @@ func clnMgr() {
 				fmt.Println(clnSap + " offline")
 				delete(connList, clnSap)
 				clnConn.Close()
-				onLineUsers.ShowOnLines(connList)
+				onLineUsers.ShowOnLines()
 			}
 		//用户上线处理统计
 		case clnConn := <-clnOnLineChannel:
@@ -42,7 +39,7 @@ func clnMgr() {
 				clnSap := clnConn.RemoteAddr().String()
 				fmt.Println(clnSap + " online")
 				connList[clnSap] = clnConn
-				onLineUsers.ShowOnLines(connList)
+				onLineUsers.ShowOnLines()
 			}
 		}
 
@@ -53,7 +50,7 @@ func main() {
 	//初始化数据库
 	database.SetupDB()
 
-	service := ":6666"
+	service := "192.168.191.1:6666"
 	//以ipv4处理
 	tcpAddr, err := net.ResolveTCPAddr("tcp4", service)
 	checkError(err)

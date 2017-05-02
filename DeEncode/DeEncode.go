@@ -22,8 +22,8 @@ const (
 	Login int32 = 0
 	// 注册
 	Register int32 = 1
-	// 添加好友
-	AddFriend int32 = 2
+	// 反馈
+	FeedBack int32 = 2
 	// 删除好友
 	DelFriend int32 = 3
 	//聊天信息
@@ -56,7 +56,7 @@ func EncodeLoginProtoc(msgType int32, userName, userPwd string) ([]byte, error) 
 
 //编码反馈帧
 func EncodeFeedBackProtoc(msgType int32, userName string,
-	rslCode int32, actionCode int32, rslMsg string) ([]byte, error) {
+	rslCode int32, actionCode int32) ([]byte, error) {
 	p := &pb.Frame{
 		ProtoSign:  1234,
 		MsgLength:  1,
@@ -67,7 +67,6 @@ func EncodeFeedBackProtoc(msgType int32, userName string,
 		},
 		FbAction: &pb.Action{
 			RslCode:    rslCode,
-			RslMsg:     rslMsg,
 			ActionType: actionCode,
 		},
 	}
@@ -91,7 +90,7 @@ func handleLogin(frame *pb.Frame, conn net.Conn) {
 		onLineUsers.GetOnLineChan() <- conn
 		//发送返回帧
 		//编码
-		data, err := EncodeFeedBackProtoc(2, "IM", LoginSuccess, Login, "login ok")
+		data, err := EncodeFeedBackProtoc(FeedBack, "IM", LoginSuccess, Login)
 		if err != nil {
 			log.Println(err)
 			return
@@ -101,10 +100,11 @@ func handleLogin(frame *pb.Frame, conn net.Conn) {
 		conn.Write(data)
 	} else {
 		log.Println("login..check.failed")
+		//认定用户下线
 		onLineUsers.GetOffLineChan() <- conn
 		//发送返回帧
 		//编码
-		data, err := EncodeFeedBackProtoc(2, "IM", LoginFailed, Login, "login failed")
+		data, err := EncodeFeedBackProtoc(FeedBack, "IM", LoginFailed, Login)
 		if err != nil {
 			log.Println(err)
 			return
