@@ -8,7 +8,7 @@ import (
 	"net"
 	"os"
 
-	"../DeEncode"
+	"IM_GO/DeEncode"
 )
 
 func SendMsg(conn net.Conn) {
@@ -64,7 +64,7 @@ func ProtoBufMsg() []byte {
 func main() {
 
 	// connect to this socket
-	conn, _ := net.Dial("tcp4", "192.168.191.1:6666")
+	conn, _ := net.Dial("tcp4", "192.168.1.115:6666")
 	log.Println("connect....")
 	loginData, err := DeEncode.EncodeLoginProtoc(DeEncode.Login, "lzy", "123")
 	if err != nil {

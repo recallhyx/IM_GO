@@ -10,6 +10,8 @@ import (
 
 	pb "IM_GO/example/protoc"
 
+	"IM_GO/onLineUsers"
+
 	"github.com/gogo/protobuf/proto"
 )
 
@@ -77,6 +79,7 @@ func DeCodeProtoc(request []byte, readlen int) (*pb.Frame, error) {
 func handleLogin(frame *pb.Frame, conn net.Conn) {
 	if Handle.Login(frame.Src) {
 		log.Println("login..check.ok")
+		onLineUsers.GetOnLineChan() <- conn
 		//发送返回帧
 		//编码
 		data, err := EncodeFeedBackProtoc(2, "lzy", 0, 0, "login ok")
@@ -89,6 +92,7 @@ func handleLogin(frame *pb.Frame, conn net.Conn) {
 		conn.Write(data)
 	} else {
 		log.Println("login..check.failed")
+		onLineUsers.GetOffLineChan() <- conn
 		//发送返回帧
 		//编码
 		data, err := EncodeFeedBackProtoc(2, "lzy", 1, 0, "login failed")

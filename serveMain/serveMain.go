@@ -6,21 +6,22 @@ import (
 	"net"
 	"os"
 
-	"strconv"
+	//"strconv"
 	//"strings"
 	"time"
 
 	"IM_GO/DeEncode"
 	"IM_GO/database"
+	"IM_GO/onLineUsers"
 )
 
-var clnOnLineChannel chan net.Conn
-var clnOffLineChannel chan net.Conn
+//此处的string到时候可以存放用户名，key存放的是ip
+var connList map[string]string
 
 func clnMgr() {
-	//通道初始化
-	clnOnLineChannel = make(chan net.Conn)
-	clnOffLineChannel = make(chan net.Conn)
+	onLineUsers.InitNetChannel()
+	clnOffLineChannel := onLineUsers.GetOffLineChan()
+	clnOnLineChannel := onLineUsers.GetOnLineChan()
 	//存储在线用户
 	connList := make(map[string]net.Conn)
 	for {
@@ -33,7 +34,7 @@ func clnMgr() {
 				fmt.Println(clnSap + " offline")
 				delete(connList, clnSap)
 				clnConn.Close()
-				showOnLines(connList)
+				onLineUsers.ShowOnLines(connList)
 			}
 		//用户上线处理统计
 		case clnConn := <-clnOnLineChannel:
@@ -41,7 +42,7 @@ func clnMgr() {
 				clnSap := clnConn.RemoteAddr().String()
 				fmt.Println(clnSap + " online")
 				connList[clnSap] = clnConn
-				showOnLines(connList)
+				onLineUsers.ShowOnLines(connList)
 			}
 		}
 
@@ -81,12 +82,10 @@ func handleClient(conn net.Conn) {
 	conn.SetReadDeadline(time.Now().Add(2 * time.Minute)) // set 2 minutes timeout
 	request := make([]byte, 128)                          // set maxium request length to 128B to prevent flood attack
 	defer conn.Close()                                    // close connection before exit
-	//若用户正常上线，则将此用户的conn传进用户上线通道
-	OnLineChannel <- conn
 	for {
 		readlen, err := conn.Read(request)
 		if err != nil {
-			clnOffLineChannel <- conn
+			onLineUsers.GetOffLineChan() <- conn
 			//fmt.Println(err)
 			break
 		}
@@ -94,6 +93,8 @@ func handleClient(conn net.Conn) {
 		//fmt.Println(string(request[:read_len]))
 		// 处理消息
 		_, err = DeEncode.HandleMsg(request[:readlen], readlen, conn)
+		//若用户正常上线，则将此用户的conn传进用户上线通道
+		//clnOnLineChannel <- conn
 		if err != nil {
 			log.Println(err)
 			continue
@@ -101,18 +102,11 @@ func handleClient(conn net.Conn) {
 		//deCodeProtoc(request, readlen)
 
 		if readlen == 0 {
-			clnOffLineChannel <- conn
+			onLineUsers.GetOffLineChan() <- conn
 			break
 		}
 		request = make([]byte, 128) // clear last read content
 	}
-}
-
-//统计在线人数，将上线用户存入map里
-func showOnLines(arg_conns map[string]net.Conn) {
-
-	fmt.Println("Online Number: " + strconv.Itoa(len(arg_conns))) //strconv.Itoa将整数转换为十进制字符串形式
-
 }
 
 func checkError(err error) {
