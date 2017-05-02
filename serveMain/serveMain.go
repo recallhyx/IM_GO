@@ -10,14 +10,12 @@ import (
 	//"strings"
 	"time"
 
-<<<<<<< HEAD
-	"IM_GO/DeEncode"
-	"IM_GO/database"
-	"IM_GO/onLineUsers"
-=======
 	"../DeEncode"
 	"../database"
->>>>>>> f7366334fd6126fc005360b4805ee7055dfadbde
+	"../onLineUsers"
+
+	"../DeEncode"
+	"../database"
 )
 
 //此处的string到时候可以存放用户名，key存放的是ip
@@ -87,11 +85,8 @@ func handleClient(conn net.Conn) {
 	conn.SetReadDeadline(time.Now().Add(2 * time.Minute)) // set 2 minutes timeout
 	request := make([]byte, 128)                          // set maxium request length to 128B to prevent flood attack
 	defer conn.Close()                                    // close connection before exit
-<<<<<<< HEAD
-=======
 	//若用户正常上线，则将此用户的conn传进用户上线通道
 	clnOnLineChannel <- conn
->>>>>>> f7366334fd6126fc005360b4805ee7055dfadbde
 	for {
 		readlen, err := conn.Read(request)
 		if err != nil {
@@ -103,12 +98,8 @@ func handleClient(conn net.Conn) {
 		//fmt.Println(string(request[:read_len]))
 		// 处理消息
 		_, err = DeEncode.HandleMsg(request[:readlen], readlen, conn)
-<<<<<<< HEAD
 		//若用户正常上线，则将此用户的conn传进用户上线通道
 		//clnOnLineChannel <- conn
-=======
-
->>>>>>> f7366334fd6126fc005360b4805ee7055dfadbde
 		if err != nil {
 			log.Println(err)
 			continue
