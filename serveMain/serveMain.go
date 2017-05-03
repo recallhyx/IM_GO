@@ -50,7 +50,7 @@ func main() {
 	//初始化数据库
 	database.SetupDB()
 
-	service := "192.168.1.128:6666"
+	service := ":6666"
 	//以ipv4处理
 	tcpAddr, err := net.ResolveTCPAddr("tcp4", service)
 	checkError(err)
@@ -76,9 +76,9 @@ func main() {
 
 //处理每一个客户端
 func handleClient(conn net.Conn) {
-	conn.SetReadDeadline(time.Now().Add(2 * time.Minute)) // set 2 minutes timeout
-	request := make([]byte, 128)                          // set maxium request length to 128B to prevent flood attack
-	defer conn.Close()                                    // close connection before exit
+	conn.SetReadDeadline(time.Now().Add(30 * time.Minute)) // set 2 minutes timeout
+	request := make([]byte, 128)                           // set maxium request length to 128B to prevent flood attack
+	defer conn.Close()                                     // close connection before exit
 	for {
 		readlen, err := conn.Read(request)
 		if err != nil {

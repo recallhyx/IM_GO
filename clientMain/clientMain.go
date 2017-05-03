@@ -7,11 +7,38 @@ import (
 	"log"
 	"net"
 	"os"
-
+	"strings"
 	"../DeEncode"
 )
-
-func SendMsg(conn net.Conn) {
+//发送一帧登录请求帧
+func sendLoginFrame(conn net.Conn){
+	loginData, err := DeEncode.EncodeLoginProtoc(DeEncode.Login, "lzy", "123",1)
+	if err != nil {
+		log.Fatalln(err)
+	}
+	//发送一条登录帧
+	_, err = conn.Write(loginData)
+	if err != nil {
+		log.Fatalln(err)
+		return
+	}
+	log.Println("Send LoginFrame ok....")
+}
+//发送聊天消息帧
+func sendChatMsgFrame(conn net.Conn){
+	chatMsgData, err := DeEncode.EncodeChatMsgProtoc(DeEncode.ChatMsg, "lzy", 1,"wzb",1,"hello from go client")
+	if err != nil {
+		log.Fatalln(err)
+	}
+	//发送一条聊天消息帧
+	_, err = conn.Write(chatMsgData)
+	if err != nil {
+		log.Fatalln(err)
+		return
+	}
+	log.Println("Send ChatMsgFrame ok....")
+}
+func ReadCmd(conn net.Conn) {
 	reader := bufio.NewReader(os.Stdin)
 	msg, err := reader.ReadString('\n')
 	if err != nil {
@@ -19,10 +46,11 @@ func SendMsg(conn net.Conn) {
 		return
 	}
 
-	_, err = conn.Write([]byte(msg))
-	if err != nil {
-		fmt.Println(err)
-		return
+	if strings.Contains(msg,"login"){//输入的字符串包含login
+		sendLoginFrame(conn)
+	}
+	if strings.Contains(msg,"sendMsg"){//输入的字符串包含sendMsg
+		sendChatMsgFrame(conn)
 	}
 }
 func recv(conn net.Conn) {
@@ -38,7 +66,7 @@ func recv(conn net.Conn) {
 		log.Fatalln(err)
 	}
 	fmt.Println("GET...")
-	fmt.Println(string(returnBuf))
+	//fmt.Println(string(returnBuf))
 	fmt.Println(frame)
 }
 
@@ -64,23 +92,13 @@ func ProtoBufMsg() []byte {
 func main() {
 
 	// connect to this socket
-	conn, _ := net.Dial("tcp4", "192.168.1.115:6666")
+	conn, _ := net.Dial("tcp4", "101.201.71.152:6666")
 	log.Println("connect....")
-	loginData, err := DeEncode.EncodeLoginProtoc(DeEncode.Login, "lzy", "123")
-	if err != nil {
-		log.Fatalln(err)
-	}
-	//发送一条登录帧
-	_, err = conn.Write(loginData)
-	if err != nil {
-		log.Fatalln(err)
-		return
-	}
-	log.Println("Send ok....")
+
 	defer conn.Close()
 	for {
-
-		recv(conn)
+		ReadCmd(conn)
+		go recv(conn)
 		//SendMsg(conn)
 		//	go recv(conn)
 		// listen for reply

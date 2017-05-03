@@ -38,7 +38,7 @@ const (
 )
 
 //编码登录帧
-func EncodeLoginProtoc(msgType int32, userName, userPwd string) ([]byte, error) {
+func EncodeLoginProtoc(msgType int32, userName, userPwd string,userID int32) ([]byte, error) {
 	p := &pb.Frame{
 		ProtoSign:  1234,
 		MsgLength:  1,
@@ -47,6 +47,31 @@ func EncodeLoginProtoc(msgType int32, userName, userPwd string) ([]byte, error) 
 		Src: &pb.User{
 			UserName: userName,
 			UserPwd:  userPwd,
+			UserID:userID,
+		},
+	}
+	// 编码
+	out, err := proto.Marshal(p)
+	return out, err
+}
+//编码聊天信息帧
+func EncodeChatMsgProtoc(msgType int32, srcName string,srcID int32,dstName string,dstID int32,msgChat string) ([]byte, error) {
+	p := &pb.Frame{
+		ProtoSign:  1234,
+		MsgLength:  1,
+		MsgType:    msgType,
+		SenderTime: 100000,
+		Src: &pb.User{
+			UserName: srcName,
+			UserID:srcID,
+		},
+		Dst: &pb.DstUser{
+			[]*pb.User{
+				{UserName:dstName,UserID:dstID},
+			},
+		},
+		Msg:&pb.Msg{
+			Msg:msgChat,
 		},
 	}
 	// 编码
