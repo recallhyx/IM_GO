@@ -31,3 +31,46 @@ func User_Register(userName, pwd string) bool {
 		return false
 	}
 }
+
+func AddFriend(ownername,friendname string)bool{
+	keepsql := "insert into friend_info(ownerid,friendid) values(?,?)"
+	staute := exeSQL(keepsql, ownername,friendname)
+	if staute == true {
+		return true
+	} else {
+		log.Println("Addfriend_error")
+		return false
+	}
+}
+
+func DelFriend(ownername,friendname string)bool{
+	keepsql := "delete * from friend_info where ownerid=(?) and friendid=(?)"
+	staute := exeSQL(keepsql, ownername,friendname)
+	if staute == true {
+		return true
+	} else {
+		log.Println("Delfriend_error")
+		return false
+	}
+}
+
+func GetFriend(ownerID string) ([]string, bool) { //查找好友，参数用户id，返回好友id的int数组
+	seletesql := "select ownerid from friend_info where ownerid=(?)"
+	rows, staute := exeSQLforResult(seletesql, ownerID)
+	var friendname []string
+	if staute != true {
+		log.Println("getFriend_error")
+	} else {
+		defer rows.Close()
+		var name string;
+		for rows.Next() {
+			rows.Scan(&name)
+			friendname = append(friendname, name)
+		}
+		return friendname, true
+	}
+	return friendname, false
+}
+
+
+

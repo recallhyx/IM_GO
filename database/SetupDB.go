@@ -10,7 +10,7 @@ import (
 )
 
 var db *sql.DB
-var rootDbPwd = "Mlf7netS"
+var rootDbPwd = "@ccie2515216"
 var dB = "im"
 var lock sync.Mutex
 
@@ -54,9 +54,19 @@ func SetupDB() {
 
 	//初始化表
 	exeSQL(`CREATE TABLE IF NOT EXISTS user(
-      user_name varchar(35) PRIMARY KEY,
-      pwd varchar(128)
-)ENGINE=InnoDB DEFAULT CHARSET=utf8;`)
+		user_name varchar(35) PRIMARY KEY,
+		pwd varchar(128))ENGINE=InnoDB DEFAULT CHARSET=utf8;`)
+
+	//创建好友表
+	exeSQL(`CREATE TABLE IF NOT EXISTS friend_info (
+		ownerid varchar(10) NOT NULL,
+		friendid varchar(10) NOT NULL,
+		remark varchar(10) DEFAULT NULL,
+		tag varchar(10) DEFAULT NULL,
+		telephone varchar(15) DEFAULT NULL,
+		homeaddress varchar(30) DEFAULT NULL,
+		PRIMARY KEY (ownerid,friendid)
+	) ENGINE=InnoDB DEFAULT CHARSET=utf8;`)
 
 }
 

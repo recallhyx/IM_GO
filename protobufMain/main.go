@@ -5,7 +5,7 @@ import (
 	"log"
 
 	pb "../example/protoc"
-	"github.com/gogo/protobuf/proto"
+	"github.com/golang/protobuf/proto"
 )
 
 func Protoc() {
