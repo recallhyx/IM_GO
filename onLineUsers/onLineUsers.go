@@ -10,7 +10,7 @@ var clnOnLineChannel chan net.Conn
 
 var clnOffLineChannel chan net.Conn
 
-//此处的string到时候可以存放用户名，key存放的是连接
+//string为用户id，Conn为连接
 var connList map[string]net.Conn
 
 func InitNetChannel() {
@@ -32,6 +32,13 @@ func GetOffLineChan() chan net.Conn {
 //获取在线用户列表
 func GetConnList() map[string]net.Conn {
 	return connList
+}
+
+func AddConnList(userID string,clnConn net.Conn){
+	connList[userID]=clnConn
+}
+func RemoveConnList(userID string){
+	delete(connList, userID)
 }
 
 //统计在线人数，将上线用户存入map里

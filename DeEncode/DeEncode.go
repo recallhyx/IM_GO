@@ -87,6 +87,9 @@ func DeCodeProtoc(request []byte, readlen int) (*pb.Frame, error) {
 func handleLogin(frame *pb.Frame, conn net.Conn) {
 	if Handle.Login(frame.Src) { // 登录成功
 		log.Println("login..check.ok")
+
+		//添加到在线用户列表
+		onLineUsers.AddConnList(string(frame.Src.UserID),conn)
 		onLineUsers.GetOnLineChan() <- conn
 		//发送返回帧
 		//编码
@@ -102,6 +105,8 @@ func handleLogin(frame *pb.Frame, conn net.Conn) {
 		log.Println("login..check.failed")
 		//认定用户下线
 		onLineUsers.GetOffLineChan() <- conn
+		//从在线用户列表删除
+		//onLineUsers.RemoveConnList(123)
 		//发送返回帧
 		//编码
 		data, err := EncodeFeedBackProtoc(FeedBack, "IM", LoginFailed, Login)
@@ -116,18 +121,29 @@ func handleLogin(frame *pb.Frame, conn net.Conn) {
 }
 
 //处理聊天信息帧
-func handleChatMsg(frame *pb.Frame, conn net.Conn) {
+func handleChatMsg(frame *pb.Frame,conn net.Conn,rawFrame []byte ) {
 	log.Println(frame)
+	dstUserID := frame.GetDst().GetDst()[0].GetUserID()
+	connList :=onLineUsers.GetConnList()
+	dstConn,exists := connList[string(dstUserID)]
+	if exists{
+		log.Print("send to user:")
+		log.Println(dstUserID)
+		dstConn.Write(rawFrame)
+	}else{
+		log.Println("user offline")
+		//handle feedback
+	}
 }
 
 //消息分发
-func msgMux(frame *pb.Frame, conn net.Conn) {
+func msgMux(frame *pb.Frame,rawFrame []byte ,conn net.Conn) {
 	switch msgType := frame.MsgType; msgType {
 	case Login:
 		handleLogin(frame, conn)
 		break
 	case ChatMsg:
-		handleChatMsg(frame, conn)
+		handleChatMsg(frame,conn,rawFrame)
 		break
 	default:
 	}
@@ -142,6 +158,6 @@ func HandleMsg(request []byte, readlen int, clnConn net.Conn) (*pb.Frame, error)
 	}
 	fmt.Println(frame)
 	//分发消息
-	go msgMux(frame, clnConn)
+	go msgMux(frame,request ,clnConn)
 	return frame, err
 }

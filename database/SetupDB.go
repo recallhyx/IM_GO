@@ -10,7 +10,7 @@ import (
 )
 
 var db *sql.DB
-var rootDbPwd = "Mlf7netS"
+var rootDbPwd = "root"
 var dB = "im"
 var lock sync.Mutex
 
@@ -54,7 +54,8 @@ func SetupDB() {
 
 	//初始化表
 	exeSQL(`CREATE TABLE IF NOT EXISTS user(
-      user_name varchar(35) PRIMARY KEY,
+      user_id int auto_increment PRIMARY KEY,
+      user_name varchar(35),
       pwd varchar(128)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8;`)
 

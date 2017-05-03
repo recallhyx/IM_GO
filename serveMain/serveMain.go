@@ -20,7 +20,7 @@ func clnMgr() {
 	clnOffLineChannel := onLineUsers.GetOffLineChan()
 	clnOnLineChannel := onLineUsers.GetOnLineChan()
 	//存储在线用户
-	connList := onLineUsers.GetConnList()
+	//connList := onLineUsers.GetConnList()
 	for {
 		select {
 		//用户下线处理统计
@@ -29,7 +29,7 @@ func clnMgr() {
 				//fmt.Println(clnConn.RemoteAddr().String() + "exit")
 				clnSap := clnConn.RemoteAddr().String()
 				fmt.Println(clnSap + " offline")
-				delete(connList, clnSap)
+				//delete(connList, clnSap)
 				clnConn.Close()
 				onLineUsers.ShowOnLines()
 			}
@@ -38,7 +38,7 @@ func clnMgr() {
 			{
 				clnSap := clnConn.RemoteAddr().String()
 				fmt.Println(clnSap + " online")
-				connList[clnSap] = clnConn
+				//connList[clnSap] = clnConn
 				onLineUsers.ShowOnLines()
 			}
 		}
@@ -50,7 +50,7 @@ func main() {
 	//初始化数据库
 	database.SetupDB()
 
-	service := "192.168.191.1:6666"
+	service := "192.168.1.128:6666"
 	//以ipv4处理
 	tcpAddr, err := net.ResolveTCPAddr("tcp4", service)
 	checkError(err)
