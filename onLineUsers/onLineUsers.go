@@ -47,6 +47,6 @@ func ShowOnLines() {
 	fmt.Println("Online Number: " + strconv.Itoa(len(connList))) //strconv.Itoa将整数转换为十进制字符串形式
 	//遍历在线用户
 	for key := range connList {
-		fmt.Println("目前在线的用户：", key)
+		fmt.Println("目前在线的用户：", connList[key].RemoteAddr().String())
 	}
 }
