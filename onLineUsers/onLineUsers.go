@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net"
 	"strconv"
+	"strings"
 )
 
 var clnOnLineChannel chan net.Conn
@@ -37,8 +38,16 @@ func GetConnList() map[string]net.Conn {
 func AddConnList(userID string,clnConn net.Conn){
 	connList[userID]=clnConn
 }
-func RemoveConnList(userID string){
-	delete(connList, userID)
+//func RemoveConnList(userID string){
+//	delete(connList, userID)
+//}
+
+func RemoveConnList(conn net.Conn){
+	for key,values := range connList {
+		if strings.EqualFold(values.RemoteAddr().String(), conn.RemoteAddr().String()){
+		delete(connList, key)
+		}
+	}
 }
 
 //统计在线人数，将上线用户存入map里

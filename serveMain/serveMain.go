@@ -30,6 +30,7 @@ func clnMgr() {
 				clnSap := clnConn.RemoteAddr().String()
 				fmt.Println(clnSap + " offline")
 				//delete(connList, clnSap)
+				onLineUsers.RemoveConnList(clnConn)
 				clnConn.Close()
 				onLineUsers.ShowOnLines()
 			}
