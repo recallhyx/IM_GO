@@ -21,13 +21,26 @@ func User_Login(userName, pwd string) bool {
 	}
 	return false
 }
+
 func User_Register(userName, pwd string) bool {
-	keepsql := "insert into user(user_name,pwd) values(?,?)"
-	staute := exeSQL(keepsql, userName, pwd)
+
+	Existsql := "select user_name from user where user_name=(?) and pwd = (?)"
+
+	rows,staute := exeSQLforResult(Existsql,userName,pwd)
+	log.Println(staute)
+	defer rows.Close()
+
 	if staute == true {
+		if rows.Next() {
+			// 存在用户，拒绝注册
+			return false
+		}
+		log.Println("can_register")
+		Keepsql := "insert into user(user_name,pwd) values(?,?)"
+		exeSQL(Keepsql,userName,pwd)
 		return true
 	} else {
-		log.Println("insert_newUser_error")
+		log.Println("check_user_error")
 		return false
 	}
 }

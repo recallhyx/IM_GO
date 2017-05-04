@@ -10,6 +10,7 @@ import (
 	"strings"
 	"../DeEncode"
 )
+
 //发送一帧登录请求帧
 func sendLoginFrame(conn net.Conn){
 	loginData, err := DeEncode.EncodeLoginProtoc(DeEncode.Login, "lzy", "123",1)
@@ -24,6 +25,22 @@ func sendLoginFrame(conn net.Conn){
 	}
 	log.Println("Send LoginFrame ok....")
 }
+
+//发送一帧注册请求帧
+func sendRegisterFrame(conn net.Conn) {
+	registerData, err := DeEncode.EncodeRegisterProtoc(DeEncode.Register, "13022015751", "123456789")
+	if err != nil {
+		log.Fatalln(err)
+	}
+	//发送一条登录帧
+	_, err = conn.Write(registerData)
+	if err != nil {
+		log.Fatalln(err)
+		return
+	}
+	log.Println("Send RegisterFrame ok....")
+}
+
 //发送聊天消息帧
 func sendChatMsgFrame(conn net.Conn){
 	chatMsgData, err := DeEncode.EncodeChatMsgProtoc(DeEncode.ChatMsg, "lzy", 1,"wzb",1,"hello from go client")
@@ -51,6 +68,9 @@ func ReadCmd(conn net.Conn) {
 	}
 	if strings.Contains(msg,"sendMsg"){//输入的字符串包含sendMsg
 		sendChatMsgFrame(conn)
+	}
+	if strings.Contains(msg,"register"){//输入的字符串包含register
+		sendRegisterFrame(conn)
 	}
 }
 func recv(conn net.Conn) {
@@ -92,7 +112,7 @@ func ProtoBufMsg() []byte {
 func main() {
 
 	// connect to this socket
-	conn, _ := net.Dial("tcp4", "101.201.71.152:6666")
+	conn, _ := net.Dial("tcp4", "192.168.1.112:6666")
 	log.Println("connect....")
 
 	defer conn.Close()
