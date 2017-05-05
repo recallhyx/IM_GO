@@ -64,9 +64,9 @@ func ProtoBufMsg() []byte {
 func main() {
 
 	// connect to this socket
-	conn, _ := net.Dial("tcp4", "192.168.1.115:6666")
+	conn, _ := net.Dial("tcp4" , "172.18.7.173:6666")
 	log.Println("connect....")
-	loginData, err := DeEncode.EncodeLoginProtoc(DeEncode.Login, "lzy", "123")
+	loginData, err := DeEncode.EncodeLoginProtoc(DeEncode.GetFriend, "lzy", "123")
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -84,7 +84,7 @@ func main() {
 		//SendMsg(conn)
 		//	go recv(conn)
 		// listen for reply
-		//message, _ := bufio.NewReader(conn).ReadString('\n')
-		//fmt.Print("Message from server: " + message)
+		message, _ := bufio.NewReader(conn).ReadString('\n')
+		fmt.Print("Message from server: " + message)
 	}
 }

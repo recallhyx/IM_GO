@@ -61,20 +61,24 @@ func EncodeLoginProtoc(msgType int32, userName, userPwd string) ([]byte, error) 
 
 //编码初始化好友列表帧(返回)
 func EncodeInitFriendListFeedback(msgType int32, userName string) ([]byte, error) {
-	friend:=[]*pb.User{}
-	friendlist,_:=Handle.GetFriendList(userName)
-	for i:=0;i<len(friendlist);i++{
-		friend[i].UserName=friendlist[i]
+	friend:=[]*pb.User{
+		{UserName:"SUN",},
+		{UserName:"ray",},
 	}
+	//friendlist,_:=Handle.GetFriendList(userName)
+	//fmt.Println(friendlist)
+	//for i:=0;i<len(friendlist);i++{
+	//	friend[i].UserName=friendlist[i]
+	//}
 	p := &pb.Frame{
 		ProtoSign:  1234,
 		MsgLength:  1,
 		MsgType:    msgType,
 		SenderTime: 100000,
 		Src: &pb.User{
-			UserName: userName,
+			UserName: "test",
 		},
-		Dst:&pb.DstUser{Dst:friend},
+		Dst: &pb.DstUser{Dst: friend},
 	}
 	// 编码
 	out, err := proto.Marshal(p)
@@ -191,7 +195,7 @@ func handleChatMsg(frame *pb.Frame, conn net.Conn) {
 //处理聊天信息帧
 func handleInitFriendList(frame *pb.Frame, conn net.Conn) {
 	onLineUsers.GetOnLineChan() <- conn
-	data, err := EncodeInitFriendListFeedback(AddFriend, "IM")
+	data, err := EncodeInitFriendListFeedback(GetFriend, "IM")
 	if err != nil {
 		log.Println(err)
 		return

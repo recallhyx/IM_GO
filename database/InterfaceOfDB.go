@@ -6,6 +6,7 @@ import (
 	"log"
 	//"strconv"
 	_ "github.com/go-sql-driver/mysql"
+
 )
 
 func User_Login(userName, pwd string) bool {
@@ -55,7 +56,7 @@ func DelFriend(ownername,friendname string)bool{
 }
 
 func GetFriend(ownerID string) ([]string, bool) { //查找好友，参数用户id，返回好友id的int数组
-	seletesql := "select ownerid from friend_info where ownerid=(?)"
+	seletesql := "select friendid from friend_info where ownerid=(?)"
 	rows, staute := exeSQLforResult(seletesql, ownerID)
 	var friendname []string
 	if staute != true {

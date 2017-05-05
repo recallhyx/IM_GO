@@ -50,7 +50,7 @@ func main() {
 	//初始化数据库
 	database.SetupDB()
 
-	service := "192.168.191.1:6666"
+	service := "172.18.7.173:7666"
 	//以ipv4处理
 	tcpAddr, err := net.ResolveTCPAddr("tcp4", service)
 	checkError(err)
