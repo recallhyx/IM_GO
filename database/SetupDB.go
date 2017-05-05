@@ -10,7 +10,7 @@ import (
 )
 
 var db *sql.DB
-var rootDbPwd = "qq000000"
+var rootDbPwd = "root"
 var dB = "im"
 var lock sync.Mutex
 

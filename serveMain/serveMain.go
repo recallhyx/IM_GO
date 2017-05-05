@@ -51,7 +51,7 @@ func main() {
 	//初始化数据库
 	database.SetupDB()
 
-	service := ":6666"
+	service := "192.168.191.1:6666"
 	//以ipv4处理
 	tcpAddr, err := net.ResolveTCPAddr("tcp4", service)
 	checkError(err)
@@ -90,7 +90,7 @@ func handleClient(conn net.Conn) {
 		//原来的输入接受
 		//fmt.Println(string(request[:read_len]))
 		// 处理消息
-		_, err = DeEncode.HandleMsg(request[:readlen], readlen, conn)
+		err = DeEncode.HandleMsg(request[:readlen], readlen, conn)
 		//若用户正常上线，则将此用户的conn传进用户上线通道
 		//clnOnLineChannel <- conn
 		if err != nil {

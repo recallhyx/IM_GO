@@ -35,7 +35,11 @@ func Protoc() {
 
 }
 func main() {
-	Protoc()
+	//Protoc()
+	H:=0x01
+	L:=0x02
+	test := (int16(H<<8|L))
+	fmt.Println(test)
 	/*
 		p := &pb.Person{
 			Id:    1234,

@@ -9,11 +9,12 @@ import (
 	"os"
 	"strings"
 	"../DeEncode"
+	"io/ioutil"
 )
 
 //发送一帧登录请求帧
 func sendLoginFrame(conn net.Conn){
-	loginData, err := DeEncode.EncodeLoginProtoc(DeEncode.Login, "lzy", "123",1)
+	loginData, err := DeEncode.EncodeLoginProtoc(DeEncode.Login, "lzy", "123",2)
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -43,7 +44,7 @@ func sendRegisterFrame(conn net.Conn) {
 
 //发送聊天消息帧
 func sendChatMsgFrame(conn net.Conn){
-	chatMsgData, err := DeEncode.EncodeChatMsgProtoc(DeEncode.ChatMsg, "lzy", 1,"wzb",1,"hello from go client")
+	chatMsgData, err := DeEncode.EncodeChatMsgProtoc(DeEncode.ChatMsg, "lzy", 2,"wzb",1,"hello from go client")
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -54,6 +55,30 @@ func sendChatMsgFrame(conn net.Conn){
 		return
 	}
 	log.Println("Send ChatMsgFrame ok....")
+}
+//读文件
+func readFile(filePth string) ([]byte, error) {
+	f, err := os.Open(filePth)
+	if err != nil {
+		return nil, err
+	}
+	return ioutil.ReadAll(f)
+}
+//发送文件帧
+func sendFileMsg(conn net.Conn){
+	fileByte,err := readFile("./TestSendFile/a.txt")
+	if err != nil{
+		log.Println(err)
+		return
+	}
+	fileMsg:=DeEncode.EncodeFileMsg(DeEncode.FileMsg, 1, 2, fileByte)
+	//发送一条文件消息帧
+	_, err = conn.Write(fileMsg)
+	if err != nil {
+		log.Fatalln(err)
+		return
+	}
+	log.Println("Send fileMsg ok....")
 }
 func ReadCmd(conn net.Conn) {
 	reader := bufio.NewReader(os.Stdin)
@@ -71,6 +96,9 @@ func ReadCmd(conn net.Conn) {
 	}
 	if strings.Contains(msg,"register"){//输入的字符串包含register
 		sendRegisterFrame(conn)
+	}
+	if strings.Contains(msg,"sendFile"){//输入的字符串包含sendFile
+		sendFileMsg(conn)
 	}
 }
 func recv(conn net.Conn) {
@@ -112,7 +140,7 @@ func ProtoBufMsg() []byte {
 func main() {
 
 	// connect to this socket
-	conn, _ := net.Dial("tcp4", "192.168.1.112:6666")
+	conn, _ := net.Dial("tcp4", "192.168.191.1:6666")
 	log.Println("connect....")
 
 	defer conn.Close()
